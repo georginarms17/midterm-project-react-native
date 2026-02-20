@@ -19,7 +19,7 @@ export const applicationSchema = Yup.object({
     .required('Contact number is required')
     .matches(phMobileRegex, 'Use 09xxxxxxxxx or +639xxxxxxxxx'),
 
-  whyHireYou: Yup.string()
+  reason: Yup.string()
     .trim()
     .required('This field is required')
     .min(20, 'Please write at least 20 characters')
