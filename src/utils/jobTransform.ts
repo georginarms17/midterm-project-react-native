@@ -28,6 +28,10 @@ export function transformJobs(raw: any[]): Job[] {
     const url = item.applicationLink || item.guid || item.url;
     const salary = formatSalary(item) || item.salary;
 
+    const tags = Array.isArray(item.tags) ? item.tags.filter(Boolean) : item.tags ? [String(item.tags)] : [];
+
+    const locationsArray = Array.isArray(item.locations) ? item.locations.filter(Boolean) : item.locations ? [String(item.locations)] : [];
+
     return {
       id: String(item.guid || item.applicationLink || uuid.v4()),
       title: String(title),
@@ -36,6 +40,20 @@ export function transformJobs(raw: any[]): Job[] {
       salary: salary ? String(salary) : undefined,
       description: item.description ? String(item.description) : undefined,
       url: url ? String(url) : undefined,
+      mainCategory: item.mainCategory || item.category || undefined,
+      companyLogo: item.companyLogo || item.logo || undefined,
+      jobType: item.jobType || undefined,
+      workModel: item.workModel || undefined,
+      seniorityLevel: item.seniorityLevel || undefined,
+      minSalary: typeof item.minSalary === 'number' ? item.minSalary : null,
+      maxSalary: typeof item.maxSalary === 'number' ? item.maxSalary : null,
+      currency: typeof item.currency === 'string' ? item.currency : undefined,
+      locations: locationsArray,
+      tags: tags,
+      pubDate: typeof item.pubDate === 'number' ? item.pubDate : undefined,
+      expiryDate: typeof item.expiryDate === 'number' ? item.expiryDate : undefined,
+      applicationLink: item.applicationLink || undefined,
+      guid: item.guid || undefined,
     };
   });
 }

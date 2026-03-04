@@ -16,12 +16,50 @@ export function createStyles(colors: ComponentColors) {
       borderColor: colors.border,
       borderWidth: 1,
       borderRadius: 14,
-      padding: 12,
+      padding: 18,
       marginBottom: 12,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     title: {
       color: colors.text,
       fontSize: 16,
+      fontWeight: '700',
+    },
+    headerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    titleContainer: {
+      flex: 1,
+      paddingRight: 12,
+    },
+    logo: {
+      width: 50,
+      height: 50,
+      borderRadius: 8,
+      marginRight: 12,
+      backgroundColor: colors.card,
+    },
+    saveTopButton: {
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+      borderRadius: 50,
+      alignSelf: 'flex-start',
+    },
+    saveTopButtonDisabled: {
+      opacity: 0.7,
+    },
+    saveTopButtonText: {
+      color: '#ffffff',
       fontWeight: '700',
     },
     subtitle: {
@@ -55,6 +93,12 @@ export function createStyles(colors: ComponentColors) {
     applyButton: {
       borderWidth: 1,
       borderColor: colors.border,
+      backgroundColor: colors.primary,
+    },
+    detailButton: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
     },
     buttonText: {
       color: colors.text,

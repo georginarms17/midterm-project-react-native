@@ -17,13 +17,15 @@ export default function SearchBar({
 
   return (
     <View style={styles.container}>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.mutedText}
-        style={styles.input}
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.mutedText}
+          style={styles.input}
+        />
+      </View>
     </View>
   );
 }

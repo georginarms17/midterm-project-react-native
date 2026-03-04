@@ -20,6 +20,8 @@ export default function SavedJobsScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [jobToRemove, setJobToRemove] = useState<Job | null>(null);
+  const [removeSuccessVisible, setRemoveSuccessVisible] = useState(false);
+  const [removedJobTitle, setRemovedJobTitle] = useState('');
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,16 +35,21 @@ export default function SavedJobsScreen({ navigation }: Props) {
         <FlatList
           data={savedJobs}
           keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => (
             <JobCard
               job={item}
               showRemove
+              onApply={() => {
+                // Handle apply action for saved job
+              }}
               onRemove={() => setJobToRemove(item)}
-              onApply={() => navigation.navigate(ROUTES.APPLICATION_FORM, { job: item, fromSaved: true })}
+              onViewDetails={() => navigation.navigate(ROUTES.JOB_DETAILS, { job: item })}
             />
           )}
+          contentContainerStyle={{ flexGrow: 1, padding: 14 }}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
+            <View style={[styles.emptyState, { flex: 1 }]}> 
               <Text style={styles.emptyTitle}>No saved jobs yet</Text>
               <Text style={styles.emptySubtitle}>
                 Tap Save Job on Job Finder to keep jobs here for quick access.
@@ -64,10 +71,23 @@ export default function SavedJobsScreen({ navigation }: Props) {
         cancelText="Cancel"
         showCancel
         onConfirm={() => {
-          if (jobToRemove) removeJob(jobToRemove.id);
+          if (jobToRemove) {
+            removeJob(jobToRemove.id);
+            setRemovedJobTitle(jobToRemove.title);
+            setRemoveSuccessVisible(true);
+          }
           setJobToRemove(null);
         }}
         onCancel={() => setJobToRemove(null)}
+      />
+
+      <Modal
+        visible={removeSuccessVisible}
+        title="Removed"
+        message={removedJobTitle ? `"${removedJobTitle}" was removed from saved jobs.` : ''}
+        confirmText="OK"
+        onConfirm={() => setRemoveSuccessVisible(false)}
+        onCancel={() => setRemoveSuccessVisible(false)}
       />
     </SafeAreaView>
   );

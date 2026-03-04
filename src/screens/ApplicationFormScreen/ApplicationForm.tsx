@@ -1,5 +1,5 @@
-import React from 'react';
-import { Alert, Pressable, SafeAreaView, Text, View } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Pressable, SafeAreaView, Text, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Formik } from 'formik';
 
@@ -10,6 +10,7 @@ import { ApplicationFormValues } from '../../models/Application';
 import { useTheme } from '../../context/ThemeContext';
 
 import FormField from '../../components/Forms/FormField';
+import Modal from '../../components/Modal/Modal';
 import { createStyles } from './ApplicationForm.styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, typeof ROUTES.APPLICATION_FORM>;
@@ -26,30 +27,35 @@ export default function ApplyScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
 
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [pendingLeaveVisible, setPendingLeaveVisible] = useState(false);
+  const [pendingResetCallback, setPendingResetCallback] = useState<(() => void) | null>(null);
+  const hasInputRef = useRef(false);
+  const resetFormRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      if (!hasInputRef.current) return;
+      // Prevent default and ask confirmation
+      e.preventDefault();
+      setPendingResetCallback(() => () => {
+        if (resetFormRef.current) resetFormRef.current();
+        navigation.dispatch(e.data.action);
+      });
+      setPendingLeaveVisible(true);
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const showSuccess = (resetForm: () => void) => {
-    Alert.alert(
-      'Application Submitted ✅',
-      `You applied for: ${job.title} at ${job.company}`,
-      [
-        {
-          text: 'Okay',
-          onPress: () => {
-            resetForm();
-            if (fromSaved) {
-              // Requirement: if opened from saved jobs, OK redirects to Job Finder
-              navigation.navigate(ROUTES.JOB_FINDER);
-            } else {
-              navigation.goBack();
-            }
-          },
-        },
-      ]
-    );
+    setPendingResetCallback(() => resetForm);
+    setSuccessVisible(true);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
         <Text style={styles.title}>
           Applying for:
         </Text>
@@ -62,12 +68,32 @@ export default function ApplyScreen({ navigation, route }: Props) {
             initialValues={initialValues}
             validationSchema={applicationSchema}
             onSubmit={(values, { resetForm }) => {
-              // show feedback + clear form.
-              showSuccess(() => resetForm());
-            }}
+                showSuccess(resetForm);
+              }}
           >
-            {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isValid, isSubmitting }) => (
+            {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isValid, isSubmitting, resetForm }) => (
               <>
+                {/* keep refs up-to-date for beforeRemove handling */}
+                {(() => {
+                  const hasInput = Object.values(values).some((v) => (v as string).trim() !== '');
+                  hasInputRef.current = hasInput;
+                  resetFormRef.current = resetForm;
+                })()}
+
+                <Pressable onPress={() => {
+                  // cancel/back: if any input present, confirm
+                  const hasInput = hasInputRef.current;
+                  if (hasInput) {
+                    setPendingResetCallback(() => () => { resetForm(); navigation.goBack(); });
+                    setPendingLeaveVisible(true);
+                  } else {
+                    resetForm();
+                    navigation.goBack();
+                  }
+                }} style={{ marginBottom: 12 }}>
+                  <Text style={{ color: colors.primary }}>Cancel</Text>
+                </Pressable>
+
                 <FormField
                   value={values.name}
                   onChangeText={handleChange('name')}
@@ -114,11 +140,46 @@ export default function ApplyScreen({ navigation, route }: Props) {
                     Confirm Application
                   </Text>
                 </Pressable>
+
+                {/* Success modal */}
+                <Modal
+                  visible={successVisible}
+                  title="Application Submitted ✅"
+                  message={`You applied for: ${job.title} at ${job.company}`}
+                  confirmText="Okay"
+                  onConfirm={() => {
+                    setSuccessVisible(false);
+                    if (pendingResetCallback) {
+                      pendingResetCallback();
+                      setPendingResetCallback(null);
+                    }
+                    navigation.navigate(ROUTES.JOB_FINDER);
+                  }}
+                  onCancel={() => setSuccessVisible(false)}
+                />
+
+                {/* Confirm leave modal */}
+                <Modal
+                  visible={pendingLeaveVisible}
+                  title="Discard Application?"
+                  message="You have unsaved inputs. Discard and go back?"
+                  confirmText="Discard"
+                  cancelText="Continue Editing"
+                  showCancel
+                  confirmVariant="danger"
+                  onConfirm={() => {
+                    setPendingLeaveVisible(false);
+                    if (pendingResetCallback) pendingResetCallback();
+                    setPendingResetCallback(null);
+                  }}
+                  onCancel={() => setPendingLeaveVisible(false)}
+                />
               </>
             )}
           </Formik>
         </View>
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }

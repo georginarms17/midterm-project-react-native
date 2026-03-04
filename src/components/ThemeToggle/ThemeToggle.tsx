@@ -9,9 +9,7 @@ export default function ThemeToggle() {
 
   return (
     <Pressable onPress={toggleMode} style={styles.button}>
-      <Text style={styles.text}>
-        {mode === 'light' ? '🌙 Dark' : '☀️ Light'}
-      </Text>
+      <Text style={styles.text}>{mode === 'light' ? 'Dark' : 'Light'}</Text>
     </Pressable>
   );
 }

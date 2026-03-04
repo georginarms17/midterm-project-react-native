@@ -16,9 +16,17 @@ export function createStyles(colors: ScreenColors) {
     container: {
       padding: 14,
     },
+    headerRightContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 10,
+      gap: 12,
+    },
     savedButton: {
       paddingHorizontal: 6,
-      paddingVertical: 4,
+    },
+    themeButton: {
+      paddingHorizontal: 6,
     },
     savedIcon: {
       color: colors.primary,

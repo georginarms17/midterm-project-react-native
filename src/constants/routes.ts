@@ -1,5 +1,6 @@
 export const ROUTES = {
-    JOB_FINDER: 'JobFinder',    // figure if yung tsx file per screen ang ilalagay
+    JOB_FINDER: 'JobFinder',
     SAVED_JOBS: 'SavedJobs',
     APPLICATION_FORM: 'ApplicationForm',
+    JOB_DETAILS: 'JobDetails',
 } as const;

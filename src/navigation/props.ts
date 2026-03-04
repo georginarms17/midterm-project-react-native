@@ -11,4 +11,5 @@ export type RootStackParamList = {
   [ROUTES.JOB_FINDER]: undefined;
   [ROUTES.SAVED_JOBS]: undefined;
   [ROUTES.APPLICATION_FORM]: { job: Job; fromSaved?: boolean };
+  [ROUTES.JOB_DETAILS]: { job: Job };
 };

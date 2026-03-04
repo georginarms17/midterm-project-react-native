@@ -26,22 +26,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const colors = useMemo(() => {
     if (mode === 'dark') {
       return {
-        background: '#0b0b0b',
+        background: '#0d0c18',
         card: '#151515',
-        text: '#ffffff',
+        text: '#FCFCF5',
         mutedText: '#b5b5b5',
         border: '#2a2a2a',
-        primary: '#4ea1ff',
+        primary: '#6a62be',
         danger: '#ff5a5a',
       };
     }
     return {
-      background: '#ffffff',
+      background: '#FCFCF5',
       card: '#f5f5f5',
-      text: '#111111',
+      text: '#0d0c18',
       mutedText: '#555555',
       border: '#dddddd',
-      primary: '#1b74ff',
+      primary: '#6a62be',
       danger: '#d11a2a',
     };
   }, [mode]);
