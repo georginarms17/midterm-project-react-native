@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { RootStackParamList } from '../../navigation/props';
 import { ROUTES } from '../../constants/routes';
 import { useTheme } from '../../context/ThemeContext';
 import { useSavedJobs } from '../../context/SavedJobsContext';
+import Modal from '../../components/Modal/Modal';
 import { createStyles } from './JobDetails.styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, typeof ROUTES.JOB_DETAILS>;
@@ -20,14 +21,20 @@ type Props = NativeStackScreenProps<RootStackParamList, typeof ROUTES.JOB_DETAIL
 export default function JobDetailsScreen({ route, navigation }: Props) {
   const { job } = route.params;
   const { colors } = useTheme();
-  const { saveJob, isSaved } = useSavedJobs();
+  const { saveJob, removeJob, isSaved } = useSavedJobs();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const [saveSuccessVisible, setSaveSuccessVisible] = useState(false);
+  const [removeSuccessVisible, setRemoveSuccessVisible] = useState(false);
 
   const saved = isSaved(job.id);
 
   const handleSave = () => {
-    if (!saved) {
+    if (saved) {
+      removeJob(job.id);
+      setRemoveSuccessVisible(true);
+    } else {
       saveJob(job);
+      setSaveSuccessVisible(true);
     }
   };
 
@@ -172,10 +179,9 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
       <View style={styles.actionsRowFixed}>
         <Pressable
           onPress={handleSave}
-          disabled={saved}
-          style={[styles.actionButton, styles.saveButton, saved && styles.saveButtonDisabled]}
+          style={[styles.actionButton, styles.saveButton]}
         >
-          <Text style={[styles.buttonText, saved && styles.buttonTextDisabled]}>
+          <Text style={styles.buttonText}>
             {saved ? 'Saved' : 'Save'}
           </Text>
         </Pressable>
@@ -186,6 +192,22 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
           <Text style={styles.buttonText}>Apply Now</Text>
         </Pressable>
       </View>
+      <Modal
+        visible={saveSuccessVisible}
+        title="Saved Job"
+        message={`"${job.title}" was added to your saved jobs.`}
+        confirmText="Nice"
+        onConfirm={() => setSaveSuccessVisible(false)}
+        onCancel={() => setSaveSuccessVisible(false)}
+      />
+      <Modal
+        visible={removeSuccessVisible}
+        title="Removed"
+        message={`"${job.title}" was removed from saved jobs.`}
+        confirmText="OK"
+        onConfirm={() => setRemoveSuccessVisible(false)}
+        onCancel={() => setRemoveSuccessVisible(false)}
+      />
     </SafeAreaView>
   );
 }
