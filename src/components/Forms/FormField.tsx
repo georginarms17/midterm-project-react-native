@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, TextInputProps } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { createStyles } from './FormField.styles';
 
 export default function FormField({
@@ -21,7 +22,7 @@ export default function FormField({
   multiline?: boolean;
 }) {
   const { colors } = useTheme();
-  const styles = React.useMemo(() => createStyles(colors), [colors]);
+  const styles = useThemeStyles(createStyles);
 
   return (
     <View style={styles.container}>

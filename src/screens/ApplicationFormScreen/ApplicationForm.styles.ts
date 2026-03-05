@@ -26,6 +26,10 @@ export function createStyles(colors: ScreenColors) {
       color: colors.mutedText,
       marginTop: 4,
     },
+    themeButton: {
+      paddingHorizontal: 6,
+      marginHorizontal: 10,
+    },
     formContainer: {
       marginTop: 16,
     },

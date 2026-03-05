@@ -13,7 +13,11 @@ export function createStyles(colors: ScreenColors) {
       backgroundColor: colors.background,
     },
     container: {
-      padding: 14,
+      padding: 2,
+    },
+    themeButton: {
+      paddingHorizontal: 6,
+      marginHorizontal: 10,
     },
     emptyState: {
       marginTop: 48,
@@ -21,7 +25,7 @@ export function createStyles(colors: ScreenColors) {
     },
     emptyTitle: {
       color: colors.text,
-      fontSize: 18,
+      fontSize: 28,
       fontWeight: '700',
       textAlign: 'center',
     },

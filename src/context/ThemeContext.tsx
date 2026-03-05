@@ -32,7 +32,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         mutedText: '#b5b5b5',
         border: '#2a2a2a',
         primary: '#6a62be',
-        danger: '#ff5a5a',
+        danger: '#d11a2a',
       };
     }
     return {

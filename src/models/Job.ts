@@ -6,7 +6,6 @@ export interface Job {
     salary?: string;
     description?: string;
     url?: string;
-    // Extended fields from API
     mainCategory?: string;
     companyLogo?: string;
     jobType?: string;

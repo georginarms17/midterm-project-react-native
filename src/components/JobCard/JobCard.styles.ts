@@ -98,10 +98,10 @@ export function createStyles(colors: ComponentColors) {
     detailButton: {
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.card,
+      backgroundColor: colors.primary,
     },
     buttonText: {
-      color: colors.text,
+      color: '#f5f5f5',
       fontWeight: '700',
     },
   });

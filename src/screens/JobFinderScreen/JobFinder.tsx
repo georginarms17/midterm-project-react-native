@@ -8,6 +8,7 @@ import { ROUTES } from '../../constants/routes';
 import { fetchJobs } from '../../api/jobsAPI';
 import { Job } from '../../models/Job';
 import { useTheme } from '../../context/ThemeContext';
+import { buildScreenHeader } from '../../hooks/useScreenHeader';
 
 import JobCard from '../../components/JobCard/JobCard';
 import Modal from '../../components/Modal/Modal';
@@ -38,19 +39,10 @@ export default function JobFinderScreen({ navigation }: Props) {
   });
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: 'Job Finder',
-      headerTitleAlign: 'left',
+    const headerOptions = buildScreenHeader({
+      title: 'Job Finder',
+      colors,
       headerLeft: () => null,
-      headerStyle: {
-        backgroundColor: colors.background,
-      },
-      headerTintColor: colors.text,
-      headerTitleStyle: {
-        color: colors.text,
-        fontSize: 24,
-        fontWeight: '800',
-      },
       headerRight: () => (
         <View style={styles.headerRightContainer}>
           <Pressable style={styles.savedButton} onPress={() => navigation.navigate(ROUTES.SAVED_JOBS)}>
@@ -61,7 +53,9 @@ export default function JobFinderScreen({ navigation }: Props) {
           </Pressable>
         </View>
       ),
+      headerBackTitle: undefined,
     });
+    navigation.setOptions(headerOptions);
   }, [navigation, styles, colors, toggleMode, mode]);
 
   useEffect(() => {
@@ -71,8 +65,11 @@ export default function JobFinderScreen({ navigation }: Props) {
         setLoading(true);
         const list = await fetchJobs();
         if (mounted) setJobs(list);
-      } catch (e: any) {
-        if (mounted) setErrorMsg(e?.message ?? 'Failed to load jobs');
+      } catch (e: unknown) {
+        if (mounted) {
+          const message = e instanceof Error ? e.message : 'Failed to load jobs';
+          setErrorMsg(message);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -140,7 +137,6 @@ export default function JobFinderScreen({ navigation }: Props) {
             renderItem={({ item }) => (
               <JobCard
                 job={item}
-                onApply={() => {}}
                 onSaveSuccess={(savedJob) => {
                   setSavedJobTitle(savedJob.title);
                   setSaveSuccessVisible(true);

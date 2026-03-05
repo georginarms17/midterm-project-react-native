@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Job } from '../../models/Job';
-import { useTheme } from '../../context/ThemeContext';
-import { useSavedJobs } from '../../context/SavedJobsContext';
+import { useJobActions } from '../../hooks/useJobActions';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { buildCompanyInfo } from '../../utils/formatting';
 import { createStyles } from './JobCard.styles';
 import { Feather as Icon } from '@expo/vector-icons';
 
 export default function JobCard({
   job,
-  onApply,
   onViewDetails,
   showRemove,
   onRemove,
@@ -16,27 +16,17 @@ export default function JobCard({
   onRemoveSuccess,
 }: {
   job: Job;
-  onApply: () => void;
   onViewDetails?: () => void;
   showRemove?: boolean;
   onRemove?: () => void;
   onSaveSuccess?: (job: Job) => void;
   onRemoveSuccess?: (job: Job) => void;
 }) {
-  const { colors } = useTheme();
-  const { saveJob, removeJob, isSaved } = useSavedJobs();
-  const styles = React.useMemo(() => createStyles(colors), [colors]);
+  const styles = useThemeStyles(createStyles);
+  const { handleToggleSave, isSaved } = useJobActions({ onSaveSuccess, onRemoveSuccess });
 
   const saved = isSaved(job.id);
-  const handleSave = () => {
-    if (saved) {
-      removeJob(job.id);
-      onRemoveSuccess?.(job);
-      return;
-    }
-    saveJob(job);
-    onSaveSuccess?.(job);
-  };
+  const companyInfo = buildCompanyInfo(job.company, job.location);
 
   return (
     <View style={styles.container}>
@@ -46,13 +36,10 @@ export default function JobCard({
         ) : null}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{job.title}</Text>
-          <Text style={styles.subtitle}>
-            {job.company}
-            {job.location ? ` • ${job.location}` : ''}
-          </Text>
+          <Text style={styles.subtitle}>{companyInfo}</Text>
         </View>
         <Pressable
-          onPress={handleSave}
+          onPress={() => handleToggleSave(job)}
           style={[styles.saveTopButton, saved ? styles.saveButtonDisabled : styles.saveButton]}
         >
           <Icon name="bookmark" size={20} color={saved ? '#6a62be' : '#fff'} />

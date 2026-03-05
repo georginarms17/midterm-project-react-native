@@ -18,7 +18,7 @@ export function createStyles(colors: ScreenColors) {
     },
     container: {
       flex: 1,
-      padding: 16,
+      padding: 14,
     },
     scrollContent: {
       paddingBottom: 140,
@@ -27,7 +27,7 @@ export function createStyles(colors: ScreenColors) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 16,
+      marginBottom: 14,
     },
     titleContainer: {
       flex: 1,
@@ -50,14 +50,19 @@ export function createStyles(colors: ScreenColors) {
       backgroundColor: colors.card,
       marginRight: 12,
     },
+    themeButton: {
+      paddingHorizontal: 6,
+      marginHorizontal: 10,
+    },
     section: {
       marginBottom: 20,
     },
     sectionTitle: {
-      fontSize: 16,
+      fontSize: 20,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 8,
+      marginBottom: 12,
+      marginLeft: 6,
     },
     card: {
       backgroundColor: colors.card,
@@ -69,16 +74,18 @@ export function createStyles(colors: ScreenColors) {
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 8,
+      marginVertical: 4,
+      marginHorizontal: 6,
       paddingVertical: 4,
     },
     label: {
-      fontSize: 12,
+      fontSize: 14,
+      fontWeight: '600',
       color: colors.mutedText,
       width: 100,
     },
     value: {
-      fontSize: 13,
+      fontSize: 14,
       color: colors.text,
       flex: 1,
     },

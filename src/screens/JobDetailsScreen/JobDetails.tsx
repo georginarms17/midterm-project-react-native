@@ -1,18 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  Pressable,
-  Image,
-} from 'react-native';
+import React, { useState, useLayoutEffect } from 'react';
+import { View, Text, ScrollView, SafeAreaView, Pressable, Image } from 'react-native';
+import { Feather as Icon } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '../../navigation/props';
 import { ROUTES } from '../../constants/routes';
 import { useTheme } from '../../context/ThemeContext';
-import { useSavedJobs } from '../../context/SavedJobsContext';
+import { buildScreenHeader } from '../../hooks/useScreenHeader';
+import { useJobActions } from '../../hooks/useJobActions';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { formatSalary, stripHtmlTags, buildCompanyInfo } from '../../utils/formatting';
 import Modal from '../../components/Modal/Modal';
 import { createStyles } from './JobDetails.styles';
 
@@ -20,55 +17,41 @@ type Props = NativeStackScreenProps<RootStackParamList, typeof ROUTES.JOB_DETAIL
 
 export default function JobDetailsScreen({ route, navigation }: Props) {
   const { job } = route.params;
-  const { colors } = useTheme();
-  const { saveJob, removeJob, isSaved } = useSavedJobs();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { colors, mode, toggleMode } = useTheme();
+  const styles = useThemeStyles(createStyles);
+  const { handleToggleSave, isSaved } = useJobActions({
+    onSaveSuccess: () => setSaveSuccessVisible(true),
+    onRemoveSuccess: () => setRemoveSuccessVisible(true),
+  });
   const [saveSuccessVisible, setSaveSuccessVisible] = useState(false);
   const [removeSuccessVisible, setRemoveSuccessVisible] = useState(false);
-
   const saved = isSaved(job.id);
 
-  const handleSave = () => {
-    if (saved) {
-      removeJob(job.id);
-      setRemoveSuccessVisible(true);
-    } else {
-      saveJob(job);
-      setSaveSuccessVisible(true);
-    }
-  };
+  useLayoutEffect(() => {
+    const headerOptions = buildScreenHeader({
+      title: 'Job Details',
+      colors,
+      headerLeft: () => (
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon name="chevron-left" size={24} color={colors.text} />
+        </Pressable>
+      ),
+      headerRight: () => (
+        <Pressable onPress={toggleMode} style={styles.themeButton}>
+          <Icon name={mode === 'light' ? 'moon' : 'sun'} size={24} color={colors.text} />
+        </Pressable>
+      ),
+    });
+    navigation.setOptions(headerOptions);
+  }, [navigation, colors, toggleMode, mode, styles]);
 
   const handleApply = () => {
     navigation.navigate(ROUTES.APPLICATION_FORM, { job, fromSaved: false });
   };
+  const handleSave = () => handleToggleSave(job);
 
-  const formatSalary = () => {
-    if (job.salary) return job.salary;
-    if (job.minSalary && job.maxSalary) {
-      return `${job.minSalary} - ${job.maxSalary} ${job.currency || 'EUR'}`;
-    }
-    if (job.minSalary) {
-      return `${job.minSalary} ${job.currency || 'EUR'}`;
-    }
-    if (job.maxSalary) {
-      return `${job.maxSalary} ${job.currency || 'EUR'}`;
-    }
-    return 'Not specified';
-  };
-
-  const stripHtmlTags = (html: string) => {
-    if (!html) return '';
-    // Convert common block tags to newlines, list items to bullets, then strip remaining tags
-    let s = html.replace(/<br\s*\/?>/gi, '\n');
-    s = s.replace(/<\/p>/gi, '\n');
-    s = s.replace(/<li>/gi, '\n- ');
-    s = s.replace(/<\/li>/gi, '\n');
-    s = s.replace(/<[^>]*>/g, '');
-    s = s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    // Collapse multiple newlines
-    s = s.replace(/\n{2,}/g, '\n\n');
-    return s.trim();
-  };
+  const salary = formatSalary(job.salary, job.minSalary, job.maxSalary, job.currency);
+  const companyInfo = buildCompanyInfo(job.company, job.location);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -80,7 +63,7 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
           )}
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{job.title}</Text>
-            <Text style={styles.company}>{job.company}</Text>
+            <Text style={styles.company}>{companyInfo}</Text>
           </View>
         </View>
 
@@ -113,7 +96,7 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
             )}
             <View style={styles.row}>
               <Text style={styles.label}>Salary</Text>
-              <Text style={styles.value}>{formatSalary()}</Text>
+              <Text style={styles.value}>{salary}</Text>
             </View>
             {job.locations && job.locations.length > 0 && (
               <View style={styles.row}>
