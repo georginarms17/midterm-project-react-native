@@ -29,7 +29,7 @@ export default function SavedJobsScreen({ navigation }: Props) {
       title: 'Saved Jobs',
       colors,
       headerLeft: () => (
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
           <Icon name="chevron-left" size={24} color={colors.text} />
         </Pressable>
       ),
