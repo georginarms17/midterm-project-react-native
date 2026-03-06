@@ -202,12 +202,12 @@ export function createStyles(colors: ScreenColors) {
     },
     tagText: {
       color: '#ffffff',
-      fontSize: 12,
+      fontSize: 14,
       fontWeight: '600',
     },
     descriptionText: {
       color: colors.text,
-      fontSize: 15,
+      fontSize: 16,
       lineHeight: 22,
       margin: 4,
     },

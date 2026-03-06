@@ -29,7 +29,7 @@ export function createStyles(colors: ComponentColors) {
     },
     title: {
       color: colors.text,
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '700',
     },
     headerRow: {
@@ -87,7 +87,7 @@ export function createStyles(colors: ComponentColors) {
     },
     infoPillText: {
       color: colors.text,
-      fontSize: 12,
+      fontSize: 14,
       fontWeight: '600',
     },
     actionsRow: {
@@ -115,6 +115,7 @@ export function createStyles(colors: ComponentColors) {
     },
     buttonText: {
       color: '#f5f5f5',
+      fontSize: 14,
       fontWeight: '700',
     },
   });
