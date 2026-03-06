@@ -23,7 +23,7 @@ export function createStyles(colors: ComponentColors) {
         width: 0,
         height: 2,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.2,
       shadowRadius: 4,
       elevation: 3,
     },
@@ -55,20 +55,40 @@ export function createStyles(colors: ComponentColors) {
       borderRadius: 50,
       alignSelf: 'flex-start',
     },
-    saveTopButtonDisabled: {
-      opacity: 0.7,
-    },
-    saveTopButtonText: {
-      color: '#ffffff',
-      fontWeight: '700',
-    },
     subtitle: {
       color: colors.mutedText,
       marginTop: 4,
     },
     salary: {
-      color: colors.mutedText,
+      color: colors.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    salaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
       marginTop: 4,
+    },
+    infoPillsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: 10,
+      gap: 8,
+    },
+    infoPill: {
+      backgroundColor: colors.border,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      flexGrow: 1,
+      minWidth: '30%',
+      alignItems: 'center',
+    },
+    infoPillText: {
+      color: colors.text,
+      fontSize: 12,
+      fontWeight: '600',
     },
     actionsRow: {
       flexDirection: 'row',
@@ -90,14 +110,7 @@ export function createStyles(colors: ComponentColors) {
     removeButton: {
       backgroundColor: colors.danger,
     },
-    applyButton: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.primary,
-    },
     detailButton: {
-      borderWidth: 1,
-      borderColor: colors.border,
       backgroundColor: colors.primary,
     },
     buttonText: {

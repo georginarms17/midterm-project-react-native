@@ -3,6 +3,7 @@ import { View, Text, Pressable, Image } from 'react-native';
 import { Job } from '../../models/Job';
 import { useJobActions } from '../../hooks/useJobActions';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { useTheme } from '../../context/ThemeContext';
 import { buildCompanyInfo } from '../../utils/formatting';
 import { createStyles } from './JobCard.styles';
 import { Feather as Icon } from '@expo/vector-icons';
@@ -23,13 +24,18 @@ export default function JobCard({
   onRemoveSuccess?: (job: Job) => void;
 }) {
   const styles = useThemeStyles(createStyles);
+  const { colors } = useTheme();
   const { handleToggleSave, isSaved } = useJobActions({ onSaveSuccess, onRemoveSuccess });
 
   const saved = isSaved(job.id);
   const companyInfo = buildCompanyInfo(job.company, job.location);
 
   return (
-    <View style={styles.container}>
+    <Pressable
+      style={styles.container}
+      onPress={onViewDetails}
+      disabled={!onViewDetails}
+    >
       <View style={styles.headerRow}>
         {job.companyLogo ? (
           <Image source={{ uri: job.companyLogo }} style={styles.logo} resizeMode="contain" />
@@ -39,7 +45,10 @@ export default function JobCard({
           <Text style={styles.subtitle}>{companyInfo}</Text>
         </View>
         <Pressable
-          onPress={() => handleToggleSave(job)}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleToggleSave(job);
+          }}
           style={[styles.saveTopButton, saved ? styles.saveButtonDisabled : styles.saveButton]}
         >
           <Icon name="bookmark" size={20} color={saved ? '#6a62be' : '#fff'} />
@@ -47,15 +56,41 @@ export default function JobCard({
       </View>
 
       {job.salary ? (
-        <Text style={styles.salary}>
-          Salary: {job.salary}
-        </Text>
+        <View style={styles.salaryRow}>
+          <Icon name="dollar-sign" size={14} color={colors.mutedText} />
+          <Text style={styles.salary}>
+            Salary: {job.salary}
+          </Text>
+        </View>
+      ) : null}
+
+      {(job.jobType || job.workModel || job.seniorityLevel) ? (
+        <View style={styles.infoPillsContainer}>
+          {job.jobType ? (
+            <View style={styles.infoPill}>
+              <Text style={styles.infoPillText}>{job.jobType}</Text>
+            </View>
+          ) : null}
+          {job.workModel ? (
+            <View style={styles.infoPill}>
+              <Text style={styles.infoPillText}>{job.workModel}</Text>
+            </View>
+          ) : null}
+          {job.seniorityLevel ? (
+            <View style={styles.infoPill}>
+              <Text style={styles.infoPillText}>{job.seniorityLevel}</Text>
+            </View>
+          ) : null}
+        </View>
       ) : null}
 
       <View style={styles.actionsRow}>
         {showRemove ? (
           <Pressable
-            onPress={onRemove}
+            onPress={(e) => {
+              e.stopPropagation();
+              onRemove?.();
+            }}
             style={[styles.actionButton, styles.removeButton]}
           >
             <Text style={styles.buttonText}>Remove Job</Text>
@@ -63,11 +98,17 @@ export default function JobCard({
         ) : null}
 
         {onViewDetails && (
-          <Pressable onPress={onViewDetails} style={[styles.actionButton, styles.detailButton]}>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
+            style={[styles.actionButton, styles.detailButton]}
+          >
             <Text style={styles.buttonText}>Details</Text>
           </Pressable>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }

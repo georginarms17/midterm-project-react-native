@@ -1,10 +1,4 @@
-/**
- * Utility functions for common operations.
- */
-
-/**
- * Format salary with fallback values.
- */
+// Format salary with fallback values.
 export function formatSalary(
   salary: string | undefined,
   minSalary: number | null | undefined,
@@ -18,26 +12,34 @@ export function formatSalary(
   return 'Not specified';
 }
 
-/**
- * Strip HTML tags from text.
- */
+// Strip HTML tags from text.
 export function stripHtmlTags(html: string): string {
   if (!html) return '';
+
   // Convert common block tags to newlines, list items to bullets, then strip remaining tags.
   let s = html.replace(/<br\s*\/?>/gi, '\n');
   s = s.replace(/<\/p>/gi, '\n');
-  s = s.replace(/<li>/gi, '\n- ');
+  s = s.replace(/<li>/gi, '\n• ');
   s = s.replace(/<\/li>/gi, '\n');
   s = s.replace(/<[^>]*>/g, '');
-  s = s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-  // Collapse multiple newlines.
+
+  s = decodeHtmlEntities(s);
   s = s.replace(/\n{2,}/g, '\n\n');
+
   return s.trim();
 }
 
-/**
- * Build company info string with location.
- */
+// Build company info string with location.
 export function buildCompanyInfo(company: string, location?: string): string {
   return location ? `${company} - ${location}` : company;
+}
+
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 }

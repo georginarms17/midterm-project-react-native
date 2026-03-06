@@ -14,7 +14,19 @@ export function createStyles(colors: ScreenColors) {
       backgroundColor: colors.background,
     },
     container: {
+      flex: 1,
       padding: 14,
+    },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    searchInputWrap: {
+      flex: 1,
+    },
+    filterButton: {
+      padding: 8,
+      marginLeft: 10,
     },
     headerRightContainer: {
       flexDirection: 'row',
@@ -28,10 +40,6 @@ export function createStyles(colors: ScreenColors) {
     themeButton: {
       paddingHorizontal: 6,
     },
-    savedIcon: {
-      color: colors.primary,
-      fontSize: 18,
-    },
     loadingContainer: {
       marginTop: 20,
     },
@@ -40,6 +48,7 @@ export function createStyles(colors: ScreenColors) {
       marginTop: 16,
     },
     list: {
+      flex: 1,
       marginTop: 14,
     },
     emptyText: {

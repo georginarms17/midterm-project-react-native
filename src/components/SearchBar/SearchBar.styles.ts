@@ -4,7 +4,6 @@ type ComponentColors = {
   border: string;
   card: string;
   text: string;
-  primary: string;
 };
 
 export function createStyles(colors: ComponentColors) {
@@ -13,7 +12,7 @@ export function createStyles(colors: ComponentColors) {
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 20,
-      paddingHorizontal: 12,
+      paddingHorizontal: 16,
       backgroundColor: colors.card,
       minHeight: 40,
       justifyContent: 'center',

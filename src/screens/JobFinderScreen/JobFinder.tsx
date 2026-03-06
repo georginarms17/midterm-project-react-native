@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, Text, View, Pressable, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { ActivityIndicator, FlatList, SafeAreaView, Text, View, Pressable, Keyboard } from 'react-native';
 import { Feather as Icon } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -31,6 +31,7 @@ export default function JobFinderScreen({ navigation }: Props) {
   const [removeSuccessVisible, setRemoveSuccessVisible] = useState(false);
   const [removedJobTitle, setRemovedJobTitle] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     jobTypes: [],
     workModels: [],
@@ -79,6 +80,16 @@ export default function JobFinderScreen({ navigation }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const filteredJobs = useMemo(() => {
     let result = [...jobs];
 
@@ -111,14 +122,13 @@ export default function JobFinderScreen({ navigation }: Props) {
   }, [jobs, query, filters]);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1 }}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.searchRow}>
+          <View style={styles.searchInputWrap}>
             <SearchBar value={query} onChangeText={setQuery} />
           </View>
-          <Pressable onPress={() => setFilterModalVisible(true)} style={{ padding: 8, marginLeft: 10 }}>
+          <Pressable onPress={() => setFilterModalVisible(true)} style={styles.filterButton}>
             <Icon name="filter" size={22} color={colors.primary} />
           </Pressable>
         </View>
@@ -134,6 +144,8 @@ export default function JobFinderScreen({ navigation }: Props) {
             data={filteredJobs}
             keyExtractor={(item) => item.id}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            onScrollBeginDrag={Keyboard.dismiss}
             renderItem={({ item }) => (
               <JobCard
                 job={item}
@@ -141,7 +153,13 @@ export default function JobFinderScreen({ navigation }: Props) {
                   setSavedJobTitle(savedJob.title);
                   setSaveSuccessVisible(true);
                 }}
-                onViewDetails={() => navigation.navigate(ROUTES.JOB_DETAILS, { job: item })}
+                onViewDetails={() => {
+                  if (keyboardVisible) {
+                    Keyboard.dismiss();
+                    return;
+                  }
+                  navigation.navigate(ROUTES.JOB_DETAILS, { job: item });
+                }}
                 onRemoveSuccess={(removedJob) => {
                   setRemovedJobTitle(removedJob.title);
                   setRemoveSuccessVisible(true);
@@ -160,7 +178,7 @@ export default function JobFinderScreen({ navigation }: Props) {
         visible={saveSuccessVisible}
         title="Saved Job"
         message={`"${savedJobTitle}" was added to your saved jobs.`}
-        confirmText="Nice"
+        confirmText="OK"
         onConfirm={() => setSaveSuccessVisible(false)}
         onCancel={() => setSaveSuccessVisible(false)}
       />
@@ -178,7 +196,6 @@ export default function JobFinderScreen({ navigation }: Props) {
         onApply={(newFilters) => setFilters(newFilters)}
         onClose={() => setFilterModalVisible(false)}
       />
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }

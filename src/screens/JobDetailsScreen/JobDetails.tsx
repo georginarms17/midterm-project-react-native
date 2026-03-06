@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+﻿import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, SafeAreaView, Pressable, Image } from 'react-native';
 import { Feather as Icon } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,7 +9,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { buildScreenHeader } from '../../hooks/useScreenHeader';
 import { useJobActions } from '../../hooks/useJobActions';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { formatSalary, stripHtmlTags, buildCompanyInfo } from '../../utils/formatting';
+import { formatSalary } from '../../utils/formatting';
+import { parseDescriptionSections } from '../../utils/jobDescriptionParser';
 import Modal from '../../components/Modal/Modal';
 import { createStyles } from './JobDetails.styles';
 
@@ -51,59 +52,93 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
   const handleSave = () => handleToggleSave(job);
 
   const salary = formatSalary(job.salary, job.minSalary, job.maxSalary, job.currency);
-  const companyInfo = buildCompanyInfo(job.company, job.location);
+  const displayLocation = job.locations && job.locations.length > 0
+    ? job.locations.join(', ')
+    : (job.location ?? 'Location not specified');
+  const parsedDescription = parseDescriptionSections(job.description);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Header with company logo */}
+        {/* Logo and Title */}
         <View style={styles.header}>
-          {job.companyLogo && (
-            <Image source={{ uri: job.companyLogo }} style={styles.logo} resizeMode="contain" />
-          )}
+          <View style={styles.logoCircle}>
+            {job.companyLogo ? (
+              <Image source={{ uri: job.companyLogo }} style={styles.logo} resizeMode="contain" />
+            ) : (
+              <Icon name="briefcase" size={36} color={colors.mutedText} />
+            )}
+          </View>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{job.title}</Text>
-            <Text style={styles.company}>{companyInfo}</Text>
+            <Text style={styles.company}>{job.company}</Text>
+            <View style={styles.locationRow}>
+              <Icon name="map-pin" size={14} color={colors.mutedText} />
+              <Text style={styles.locationText}>{displayLocation}</Text>
+            </View>
           </View>
         </View>
 
-        {/* Main details card */}
+        {/*Job Details*/} 
         <View style={styles.section}>
-          <View style={styles.card}>
-            {job.mainCategory && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Category</Text>
-                <Text style={styles.value}>{job.mainCategory}</Text>
+          <View style={styles.gridContainer}>
+            <View style={styles.gridItem}>
+              <View style={styles.gridContentRow}>
+                <View style={styles.gridIconBadge}>
+                  <Icon name="grid" size={22} color={colors.mutedText} style={styles.gridIcon} />
+                </View>
+                <View style={styles.gridTextBlock}>
+                  <Text style={styles.gridLabel}>Category</Text>
+                  <Text style={styles.gridValue}>{job.mainCategory ?? 'Not specified'}</Text>
+                </View>
               </View>
-            )}
-            {job.jobType && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Job Type</Text>
-                <Text style={styles.value}>{job.jobType}</Text>
-              </View>
-            )}
-            {job.workModel && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Work Model</Text>
-                <Text style={styles.value}>{job.workModel}</Text>
-              </View>
-            )}
-            {job.seniorityLevel && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Seniority</Text>
-                <Text style={styles.value}>{job.seniorityLevel}</Text>
-              </View>
-            )}
-            <View style={styles.row}>
-              <Text style={styles.label}>Salary</Text>
-              <Text style={styles.value}>{salary}</Text>
             </View>
-            {job.locations && job.locations.length > 0 && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Location</Text>
-                <Text style={styles.value}>{job.locations.join(', ')}</Text>
+            <View style={styles.gridItem}>
+              <View style={styles.gridContentRow}>
+                <View style={styles.gridIconBadge}>
+                  <Icon name="briefcase" size={22} color={colors.mutedText} style={styles.gridIcon} />
+                </View>
+                <View style={styles.gridTextBlock}>
+                  <Text style={styles.gridLabel}>Job Type</Text>
+                  <Text style={styles.gridValue}>{job.jobType ?? 'Not specified'}</Text>
+                </View>
               </View>
-            )}
+            </View>
+            <View style={styles.gridItem}>
+              <View style={styles.gridContentRow}>
+                <View style={styles.gridIconBadge}>
+                  <Icon name="monitor" size={22} color={colors.mutedText} style={styles.gridIcon} />
+                </View>
+                <View style={styles.gridTextBlock}>
+                  <Text style={styles.gridLabel}>Work Model</Text>
+                  <Text style={styles.gridValue}>{job.workModel ?? 'Not specified'}</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.gridItem}>
+              <View style={styles.gridContentRow}>
+                <View style={styles.gridIconBadge}>
+                  <Icon name="user-check" size={22} color={colors.mutedText} style={styles.gridIcon} />
+                </View>
+                <View style={styles.gridTextBlock}>
+                  <Text style={styles.gridLabel}>Seniority</Text>
+                  <Text style={styles.gridValue}>{job.seniorityLevel ?? 'Not specified'}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Salary */}
+        <View style={styles.section}>
+          <View style={styles.salaryCard}>
+            <View style={styles.salaryRow}>
+              <View style={styles.gridIconBadge}>
+                <Icon name="dollar-sign" size={22} color={colors.mutedText} style={styles.gridIcon} />
+              </View>
+              <Text style={styles.salaryLabelRow}>Salary</Text>
+              <Text style={styles.salaryValueRow}>{salary}</Text>
+            </View>
           </View>
         </View>
 
@@ -122,32 +157,55 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
         )}
 
         {/* Description */}
-        {job.description && (
+        {parsedDescription.description && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Description</Text>
             <View style={styles.card}>
               <Text style={styles.descriptionText}>
-                {stripHtmlTags(job.description)}
+                {parsedDescription.description}
               </Text>
             </View>
           </View>
         )}
 
-        {/* Additional info - only render if there is content */}
+        {/* Requirements */}
+        {parsedDescription.requirements && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Requirements</Text>
+            <View style={styles.card}>
+              <Text style={styles.descriptionText}>
+                {parsedDescription.requirements}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Benefits */}
+        {parsedDescription.benefits && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Benefits</Text>
+            <View style={styles.card}>
+              <Text style={styles.descriptionText}>
+                {parsedDescription.benefits}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {(job.pubDate || job.expiryDate) && (
           <View style={styles.section}>
-            <View style={styles.card}>
+            <View style={styles.dateGrid}>
               {job.pubDate && (
-                <View style={styles.row}>
-                  <Text style={styles.label}>Posted</Text>
+                <View style={styles.dateCard}>
+                  <Text style={styles.dateLabel}>Posted</Text>
                   <Text style={styles.value}>
                     {new Date(job.pubDate * 1000).toLocaleDateString()}
                   </Text>
                 </View>
               )}
               {job.expiryDate && (
-                <View style={styles.row}>
-                  <Text style={styles.label}>Expires</Text>
+                <View style={styles.dateCard}>
+                  <Text style={styles.dateLabel}>Expires</Text>
                   <Text style={styles.value}>
                     {new Date(job.expiryDate * 1000).toLocaleDateString()}
                   </Text>
@@ -158,13 +216,12 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
         )}
       </ScrollView>
 
-      {/* Fixed action buttons at bottom */}
       <View style={styles.actionsRowFixed}>
         <Pressable
           onPress={handleSave}
-          style={[styles.actionButton, styles.saveButton]}
+          style={[styles.actionButton, saved ? styles.saveButtonDisabled : styles.saveButton]}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, saved && styles.buttonTextDisabled]}>
             {saved ? 'Saved' : 'Save'}
           </Text>
         </Pressable>
@@ -179,7 +236,7 @@ export default function JobDetailsScreen({ route, navigation }: Props) {
         visible={saveSuccessVisible}
         title="Saved Job"
         message={`"${job.title}" was added to your saved jobs.`}
-        confirmText="Nice"
+        confirmText="OK"
         onConfirm={() => setSaveSuccessVisible(false)}
         onCancel={() => setSaveSuccessVisible(false)}
       />
